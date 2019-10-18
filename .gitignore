@@ -1,0 +1,10 @@
+venv/
+venv2/
+
+*.egg-info
+
+.vscode
+
+scores.txt
+
+.python-version
