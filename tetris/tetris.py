@@ -2,6 +2,7 @@ import pygame
 
 from .grid import TetrisGrid, GriddedShape, Point
 from .shape import Shape
+from .helpers import get_font
 
 # GLOBALS VARS
 s_width = 800
@@ -27,7 +28,7 @@ def get_shape(grid_width):
 
 
 def draw_text_middle(surface, text, size, color):
-    font = pygame.font.SysFont("comicsans", size, bold=True)
+    font = get_font("comicsans", size, bold=True)
     label = font.render(text, 1, color)
 
     surface.blit(
@@ -82,7 +83,7 @@ def clear_rows(grid, locked):
 
 
 def draw_next_shape(shape, surface):
-    font = pygame.font.SysFont("comicsans", 30)
+    font = get_font("comicsans", 30)
     label = font.render("Next Shape", 1, (255, 255, 255))
 
     sx = top_left_x + play_width + 50
@@ -129,7 +130,7 @@ def max_score():
 def draw_window(surface, grid, score=0, last_score=0):
     surface.fill((0, 0, 0))
 
-    font = pygame.font.SysFont("comicsans", 60)
+    font = get_font("comicsans", 60)
     label = font.render("Tetris", 1, (255, 255, 255))
 
     surface.blit(
@@ -138,7 +139,7 @@ def draw_window(surface, grid, score=0, last_score=0):
     )
 
     # current score
-    font = pygame.font.SysFont("comicsans", 30)
+    font = get_font("comicsans", 30)
     label = font.render("Score: " + str(score), 1, (255, 255, 255))
 
     sx = top_left_x + play_width + 50

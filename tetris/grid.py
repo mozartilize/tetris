@@ -1,3 +1,6 @@
+from .helpers import hashing_point
+
+
 class Point:
     def __init__(self, x, y):
         self.x = x
@@ -10,7 +13,7 @@ class Point:
         return self.x == point.x and self.y == point.y
 
     def __hash__(self):
-        return hash((self.x, self.y))
+        return hashing_point(self.x, self.y)
 
 
 class TetrisGrid:
@@ -47,7 +50,6 @@ class TetrisGrid:
             self._grid[y] = [(0, 0, 0)] * self.width
             for x in range(self.width):
                 p = Point(x, y)
-                # self.points.add(p)
                 color = locked_points.get(p)
                 if color is not None:
                     self[p] = color
@@ -69,17 +71,6 @@ class TetrisGrid:
         self.available_points.update(free_points)
         self._locked_points.difference_update(free_points)
         self._locked_points.update(additional_locked_points)
-
-    def update_v1(self, locked_points):
-        self._grid = [None] * self.height
-        for y in range(self.height):
-            self._grid[y] = [(0, 0, 0)] * self.width
-            for x in range(self.width):
-                color = locked_points.get(Point(x, y))
-                if not color:
-                    self.available_points.add(Point(x, y))
-                else:
-                    self._grid[y][x] = color
 
     def check_lost(self):
         return self._lastest_points \
