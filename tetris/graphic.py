@@ -130,6 +130,27 @@ class GameGraphic:
         
         pygame.display.update(list(generate_rects()))
 
+    def draw_pause(self):
+        font = get_font("comicsans", 60, bold=True)
+        pause_label = font.render("Pause", 1, TEXT_COLOR)
+        text_start_x = top_left_x + play_width / 2 - pause_label.get_width() / 2
+        text_start_y = top_left_y + play_height / 2 - pause_label.get_height() / 2
+        rect0 = (text_start_x, text_start_y, pause_label.get_width(), pause_label.get_height())
+        sub = self.surface.subsurface(rect0).copy()
+        rect = self.surface.blit(
+            pause_label,
+            (
+                top_left_x + play_width / 2 - pause_label.get_width() / 2,
+                top_left_y + play_height / 2 - pause_label.get_height() / 2,
+            ),
+        )
+        pygame.display.update(rect)
+        return sub, rect
+    
+    def draw_unpause(self, sub, rect):
+        self.surface.blit(sub, rect)
+        pygame.display.update(rect)
+
     def draw(self, next_shape, highest_score, score):
         self.draw_bg()
         self.draw_title()

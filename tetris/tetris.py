@@ -101,11 +101,24 @@ def run(win):  # *
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                running = False
                 pygame.display.quit()
                 sys.exit(0)
 
-            if event.type == pygame.KEYDOWN:
+            if event.type == pygame.KEYDOWN and event.mod == pygame.KMOD_NONE:
+                if event.key == pygame.K_F9:
+                    pause = True
+                    sub, rect = graphic.draw_pause()
+                    while pause:
+                        event = pygame.event.wait()
+                        if event.type == pygame.QUIT:
+                            pygame.display.quit()
+                            sys.exit(0)
+                        elif event.type == pygame.KEYDOWN \
+                                and event.mod == pygame.KMOD_NONE \
+                                and event.key == pygame.K_F9:
+                            pause = False
+                            graphic.draw_unpause(sub, rect)
+
                 if event.key == pygame.K_LEFT:
                     current_piece.go_left(1)
                     if not valid_space(current_piece, grid):
