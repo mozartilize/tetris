@@ -1,3 +1,4 @@
+import sys
 import pygame
 
 from .grid import TetrisGrid, GriddedShape, Point
@@ -74,8 +75,6 @@ def run(win):  # *
     last_score = max_score()
     locked_points = {}
 
-    change_piece = False
-    locked_points_set = False
     running = True
     current_piece = get_shape(GRID_WIDTH)
     next_piece = get_shape(GRID_WIDTH)
@@ -89,6 +88,8 @@ def run(win):  # *
     graphic = GameGraphic(win, grid)
     graphic.draw(next_piece, last_score, score)
     while running:
+        grid.update(locked_points)  # reset grid
+
         fall_time1 += clock.get_rawtime()
         # level_time += clock.get_rawtime()
         clock.tick()
@@ -98,69 +99,64 @@ def run(win):  # *
         #     if level_time > 0.12:
         #         level_time -= 0.005
 
-        # 30 pixels per 0.27 secs
-        if fall_time1 / 1000 > one_point_fall_time:
-            fall_time1 = 0
-            current_piece.go_down(1)
-            if not (valid_space(current_piece, grid)) \
-                    and current_piece.point.y > 0:
-                current_piece.go_up(1)
-                change_piece = True
-
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
                 pygame.display.quit()
+                sys.exit(0)
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT:
                     current_piece.go_left(1)
-                    if not (valid_space(current_piece, grid)):
+                    if not valid_space(current_piece, grid):
                         current_piece.go_right(1)
                 if event.key == pygame.K_RIGHT:
                     current_piece.go_right(1)
-                    if not (valid_space(current_piece, grid)):
+                    if not valid_space(current_piece, grid):
                         current_piece.go_left(1)
                 if event.key == pygame.K_DOWN:
                     current_piece.go_down(1)
-                    if not (valid_space(current_piece, grid)):
+                    if not valid_space(current_piece, grid):
                         current_piece.go_up(1)
                 if event.key == pygame.K_UP:
                     current_piece.shape.rotate_right()
-                    if not (valid_space(current_piece, grid)):
+                    if not valid_space(current_piece, grid):
                         current_piece.shape.rotate_left()
 
+        # 30 pixels per 0.27 secs
+        if fall_time1 / 1000 > one_point_fall_time:
+            fall_time1 = 0
+            current_piece.go_down(1)
+            if not valid_space(current_piece, grid) \
+                    and current_piece.point.y > 0:
+                current_piece.go_up(1)
+
+                for point in current_piece.positions:
+                    locked_points[point] = current_piece.color
+                grid.update(locked_points, True)                
+                earn_score = clear_rows(grid, locked_points) * 10
+                if earn_score > 0:
+                    score += earn_score
+                    graphic.draw_score(score)
+
+                if grid.check_lost():
+                    draw_text_middle(win, "YOU LOST!", 80, (255, 255, 255))
+                    pygame.display.update()
+                    pygame.time.delay(1500)
+                    running = False
+                    update_score(score)
+                    pygame.event.clear()                
+                else:
+                    current_piece = next_piece
+                    next_piece = get_shape(grid.width)
+                    graphic.draw_next_shape(next_piece)
         tmp_points = dict(locked_points)
         for point in current_piece.positions:
             if point.y > -1:
                 tmp_points[point] = current_piece.color
         grid.update(tmp_points)
 
-        if change_piece:
-            for point in current_piece.positions:
-                locked_points[point] = current_piece.color
-            locked_points_set = True
-            current_piece = next_piece
-            next_piece = get_shape(grid.width)
-            graphic.draw_next_shape(next_piece)
-            change_piece = False
-            earn_score = clear_rows(grid, locked_points) * 10
-            if earn_score > 0:
-                score += earn_score
-                graphic.draw_score(score)
-
         graphic.draw_grid()
-
-        grid.update(locked_points, locked_points_set)
-        locked_points_set = False
-
-        if grid.check_lost():
-            draw_text_middle(win, "YOU LOST!", 80, (255, 255, 255))
-            pygame.display.update()
-            pygame.time.delay(1500)
-            running = False
-            update_score(score)
-            pygame.event.clear()
 
 
 def draw_main_menu(win):
