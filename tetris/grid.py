@@ -2,6 +2,8 @@ from .helpers import hashing_point
 
 
 class Point:
+    __slots__ = ('x', 'y')
+    
     def __init__(self, x, y):
         self.x = x
         self.y = y
@@ -113,3 +115,31 @@ class GriddedShape:
     @property
     def color(self):
         return self.shape.color
+
+
+def valid_space(shape, grid):
+    return not any(
+        p not in grid.available_points and p.y > -1 for p in shape.positions
+    )
+
+
+def clear_rows(grid, locked):
+    inc = 0
+    for y in range(grid.height - 1, -1, -1):
+        row = grid[y]
+        if (0, 0, 0) not in row:
+            inc += 1
+            ind = y
+            for x in range(grid.width):
+                try:
+                    del locked[Point(x, y)]
+                except KeyError:
+                    continue
+
+    if inc > 0:
+        for point in sorted(list(locked), key=lambda point: point.y)[::-1]:
+            if point.y < ind:
+                newpoint = Point(point.x, point.y + inc)
+                locked[newpoint] = locked.pop(point)
+
+    return inc

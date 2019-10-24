@@ -3,6 +3,25 @@ from .helpers import get_font
 from .consts import *
 
 
+def draw_text_middle(surface, text, size, color):
+    font = get_font(None, size, bold=True)
+    label = font.render(text, 1, color)
+
+    surface.blit(
+        label,
+        (
+            top_left_x + play_width / 2 - (label.get_width() / 2),
+            top_left_y + play_height / 2 - label.get_height() / 2,
+        ),
+    )
+
+
+def draw_main_menu(surface):
+    surface.fill(BG_COLOR)
+    draw_text_middle(surface, "Press Any Key To Play", 60, TEXT_COLOR)
+    pygame.display.update()
+
+
 class GameGraphic:
     def __init__(self, surface, grid):
         self.surface = surface
@@ -15,7 +34,7 @@ class GameGraphic:
         pygame.display.update()
 
     def draw_title(self):
-        font = get_font("comicsans", 60)
+        font = get_font(None, 60)
         label = font.render("Tetris", 1, TEXT_COLOR)
 
         rect = self.surface.blit(
@@ -25,7 +44,7 @@ class GameGraphic:
         pygame.display.update(rect)
 
     def draw_highest_score(self, score):
-        font = get_font("comicsans", 30)
+        font = get_font(None, 30)
         label = font.render("High Score: " + score, 1, TEXT_COLOR)
 
         sx = top_left_x - 200
@@ -35,7 +54,7 @@ class GameGraphic:
         pygame.display.update(rect)
 
     def draw_score(self, score):
-        font = get_font("comicsans", 30)
+        font = get_font(None, 30)
         label = font.render("Score: " + str(score), 1, TEXT_COLOR)
 
         sx = top_left_x + play_width + 50
@@ -50,7 +69,7 @@ class GameGraphic:
         pygame.display.update([reset_rect, self.score_rect])
 
     def draw_next_shape_text(self):
-        font = get_font("comicsans", 30)
+        font = get_font(None, 30)
         label = font.render("Next Shape", 1, TEXT_COLOR)
         sx = top_left_x + play_width + 50
         sy = top_left_y + play_height / 2 - 100
@@ -96,12 +115,6 @@ class GameGraphic:
                 BG_COLOR,
                 (top_left_x, top_left_y, play_width, play_height)
             )
-            yield pygame.draw.rect(
-                self.surface,
-                (255, 0, 0),
-                (top_left_x, top_left_y, play_width, play_height),
-                5
-            )
             for i in range(self.grid.height):
                 for j in range(self.grid.width):
                     yield pygame.draw.rect(
@@ -126,12 +139,19 @@ class GameGraphic:
                     (128, 128, 128),
                     (sx, sy + i * block_size),
                     (sx + play_width, sy + i * block_size),
-                )            
+                )
+            
+            yield pygame.draw.rect(
+                self.surface,
+                (255, 0, 0),
+                (top_left_x, top_left_y, play_width, play_height),
+                5
+            )
         
         pygame.display.update(list(generate_rects()))
 
     def draw_pause(self):
-        font = get_font("comicsans", 60, bold=True)
+        font = get_font(None, 60, bold=True)
         pause_label = font.render("Pause", 1, TEXT_COLOR)
         text_start_x = top_left_x + play_width / 2 - pause_label.get_width() / 2
         text_start_y = top_left_y + play_height / 2 - pause_label.get_height() / 2
@@ -151,7 +171,7 @@ class GameGraphic:
         self.surface.blit(sub, rect)
         pygame.display.update(rect)
 
-    def draw(self, next_shape, highest_score, score):
+    def draw_all(self, next_shape, highest_score, score):
         self.draw_bg()
         self.draw_title()
         self.draw_highest_score(highest_score)

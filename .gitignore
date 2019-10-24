@@ -5,6 +5,6 @@ __pycache__
 
 .vscode
 
-scores.txt
+*score.txt
 
 .python-version

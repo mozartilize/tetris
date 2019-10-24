@@ -18,17 +18,21 @@ setup(
     description=("Simple tetris game"),
     license="BSD",
     keywords="tetris pygame",
-    url="http://packages.python.org/an_example_pypi_project",
+    url="https://github.com/mozartilize/tetris",
     packages=['tetris'],
+    install_requires=["pygame>=2.0.0.dev4"],
     long_description=read('README.md'),
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Topic :: Game",
         "License :: OSI Approved :: BSD License",
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: Implementation :: CPython',
+        'Programming Language :: Python :: Implementation :: PyPy',
     ],
     entry_points={
         'console_scripts': [
-            'tetris = tetris.tetris:main'
+            'tetris = tetris.main:main'
         ]
     },
 )

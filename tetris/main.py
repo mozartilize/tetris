@@ -1,78 +1,48 @@
-import sys
+import sys, os
 import pygame
 
-from .grid import TetrisGrid, GriddedShape, Point
+from .grid import TetrisGrid, GriddedShape, Point, valid_space, clear_rows
 from .shape import Shape
-from .graphic import GameGraphic
+from .graphic import GameGraphic, draw_text_middle, draw_main_menu
 from .helpers import get_font
 from .consts import *
-
-
-def valid_space(shape, grid):
-    return not any(
-        p not in grid.available_points and p.y > -1 for p in shape.positions
-    )
 
 
 def get_shape(grid_width):
     return GriddedShape(Point(grid_width // 2, 0), Shape.new_shape())
 
 
-def draw_text_middle(surface, text, size, color):
-    font = get_font("comicsans", size, bold=True)
-    label = font.render(text, 1, color)
-
-    surface.blit(
-        label,
-        (
-            top_left_x + play_width / 2 - (label.get_width() / 2),
-            top_left_y + play_height / 2 - label.get_height() / 2,
-        ),
-    )
+def get_score_file_dir():
+    dirpath = os.path.dirname(os.path.abspath(__file__))
+    if os.path.expanduser('~') not in dirpath:  # tetris installed in root
+        return os.path.expanduser('~')
+    return dirpath
 
 
-def clear_rows(grid, locked):
-    inc = 0
-    for y in range(grid.height - 1, -1, -1):
-        row = grid[y]
-        if (0, 0, 0) not in row:
-            inc += 1
-            ind = y
-            for x in range(grid.width):
-                try:
-                    del locked[Point(x, y)]
-                except KeyError:
-                    continue
+def update_score(nscore, dirpath):
+    score = max_score(dirpath)
 
-    if inc > 0:
-        for point in sorted(list(locked), key=lambda point: point.y)[::-1]:
-            if point.y < ind:
-                newpoint = Point(point.x, point.y + inc)
-                locked[newpoint] = locked.pop(point)
-
-    return inc
-
-
-def update_score(nscore):
-    score = max_score()
-
-    with open("scores.txt", "w") as f:
+    with open(os.path.join(dirpath, "tetris_score.txt"), "w") as f:
         if int(score) > nscore:
             f.write(str(score))
         else:
             f.write(str(nscore))
 
 
-def max_score():
-    with open("scores.txt", "r") as f:
-        lines = f.readlines()
-        score = lines[0].strip()
-
+def max_score(dirpath):
+    try:
+        with open(os.path.join(dirpath, "tetris_score.txt"), "r") as f:
+            lines = f.readlines()
+            score = lines[0].strip()
+    except FileNotFoundError:
+        score = '0'
     return score
+
+dirpath = get_score_file_dir()
 
 
 def run(win):  # *
-    last_score = max_score()
+    last_score = max_score(dirpath)
     locked_points = {}
 
     running = True
@@ -86,7 +56,7 @@ def run(win):  # *
 
     grid = TetrisGrid(GRID_WIDTH, GRID_HEIGHT, locked_points)
     graphic = GameGraphic(win, grid)
-    graphic.draw(next_piece, last_score, score)
+    graphic.draw_all(next_piece, last_score, score)
     while running:
         grid.update(locked_points)  # reset grid
 
@@ -153,11 +123,11 @@ def run(win):  # *
                     graphic.draw_score(score)
 
                 if grid.check_lost():
-                    draw_text_middle(win, "YOU LOST!", 80, (255, 255, 255))
+                    draw_text_middle(win, "YOU LOST!", 80, TEXT_COLOR)
                     pygame.display.update()
                     pygame.time.delay(1500)
                     running = False
-                    update_score(score)
+                    update_score(score, dirpath)
                     pygame.event.clear()                
                 else:
                     current_piece = next_piece
@@ -172,16 +142,9 @@ def run(win):  # *
         graphic.draw_grid()
 
 
-def draw_main_menu(win):
-    win.fill((0, 0, 0))
-    draw_text_middle(win, "Press Any Key To Play", 60, (255, 255, 255))
-    pygame.display.update()
-
-
 def main_menu(win):
     draw_main_menu(win)
     while True:
-        pygame.display.update()
         event = pygame.event.wait()
         if event.type == pygame.QUIT:
             break
