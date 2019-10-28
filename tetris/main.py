@@ -58,7 +58,7 @@ def run(win):  # *
     graphic = GameGraphic(win, grid)
     graphic.draw_all(next_piece, last_score, score)
     while running:
-        grid.update(locked_points)  # reset grid
+        grid.update_to_locked_points(locked_points)  # reset grid
 
         fall_time1 += clock.get_rawtime()
         # level_time += clock.get_rawtime()
@@ -116,7 +116,7 @@ def run(win):  # *
 
                 for point in current_piece.positions:
                     locked_points[point] = current_piece.color
-                grid.update(locked_points, True)                
+                grid.update_to_new_locked_points(locked_points)                
                 earn_score = clear_rows(grid, locked_points) * 10
                 if earn_score > 0:
                     score += earn_score
@@ -137,7 +137,7 @@ def run(win):  # *
         for point in current_piece.positions:
             if point.y > -1:
                 tmp_points[point] = current_piece.color
-        grid.update(tmp_points)
+        grid.update_to_locked_points(tmp_points)
 
         graphic.draw_grid()
 

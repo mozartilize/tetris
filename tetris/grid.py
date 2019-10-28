@@ -25,7 +25,7 @@ class TetrisGrid:
 
         self.available_points = set()
         self._locked_points = set()
-        self._lastest_points = None
+        self._latest_points = None
         self._init_grid(locked_points or {})
 
     def __getitem__(self, index):
@@ -59,10 +59,15 @@ class TetrisGrid:
                 else:
                     self.available_points.add(p)
 
-    def update(self, input_locked_dict, finnal_lock=False):
+    def update_to_new_locked_points(self, input_locked_dict):
+        self._latest_points = self._update_to_locked_points(input_locked_dict)
+
+
+    def update_to_locked_points(self, input_locked_dict):
+        self._update_to_locked_points(input_locked_dict)
+
+    def _update_to_locked_points(self, input_locked_dict):
         input_locked_points = set(input_locked_dict.keys())
-        if finnal_lock:
-            self._lastest_points = input_locked_points
         free_points = self._locked_points - input_locked_points
         additional_locked_points = input_locked_points - self._locked_points
         for point in free_points:
@@ -73,10 +78,11 @@ class TetrisGrid:
         self.available_points.update(free_points)
         self._locked_points.difference_update(free_points)
         self._locked_points.update(additional_locked_points)
+        return input_locked_points
 
     def check_lost(self):
-        return self._lastest_points \
-            and any(point.y < 1 for point in self._lastest_points)
+        return self._latest_points \
+            and any(point.y < 1 for point in self._latest_points)
 
 
 class GriddedShape:
