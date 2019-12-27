@@ -1,11 +1,12 @@
-import sys, os
+import os
+import sys
+
 import pygame
 
-from .grid import TetrisGrid, GriddedShape, Point, valid_space, clear_rows
-from .shape import Shape
-from .graphic import GameGraphic, draw_text_middle, draw_main_menu
-from .helpers import get_font
-from .consts import *
+from tetris.consts import *
+from tetris.graphic import GameGraphic, draw_text_middle, draw_main_menu
+from tetris.grid import TetrisGrid, GriddedShape, Point, valid_space, clear_rows
+from tetris.shape import Shape
 
 
 def get_shape(grid_width):
@@ -37,6 +38,7 @@ def max_score(dirpath):
     except FileNotFoundError:
         score = '0'
     return score
+
 
 dirpath = get_score_file_dir()
 
@@ -116,7 +118,7 @@ def run(win):  # *
 
                 for point in current_piece.positions:
                     locked_points[point] = current_piece.color
-                grid.update_to_new_locked_points(locked_points)                
+                grid.update_to_new_locked_points(locked_points)
                 earn_score = clear_rows(grid, locked_points) * 10
                 if earn_score > 0:
                     score += earn_score
@@ -128,7 +130,7 @@ def run(win):  # *
                     pygame.time.delay(1500)
                     running = False
                     update_score(score, dirpath)
-                    pygame.event.clear()                
+                    pygame.event.clear()
                 else:
                     current_piece = next_piece
                     next_piece = get_shape(grid.width)
